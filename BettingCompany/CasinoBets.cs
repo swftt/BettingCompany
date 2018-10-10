@@ -15,8 +15,7 @@ namespace BettingCompany
 
         private Dictionary<TypeOfEvent, List<BettingsEvents>> bettingEvents = new Dictionary<TypeOfEvent, List<BettingsEvents>>();
         private Dictionary<string, Human> usersAdmins = new Dictionary<string, Human>();
-        private Human mainAccountUser;
-        private Human mainAcoountAdmin;
+        private Human loggedAccount;
         public void AddBettingEvents()
         {
             char choice = 'y';
@@ -184,6 +183,13 @@ namespace BettingCompany
         public void RegisterUser()
         {
             int age;
+            string name;
+            string surname;
+            string country;
+            string login;
+            string password;
+            string email;
+            string phoneNumber;
             Console.WriteLine();
             Console.Write("Enter age(You have to be over 18 years to register on site):");
             age = Int32.Parse(Console.ReadLine());
@@ -198,14 +204,7 @@ namespace BettingCompany
                 else
                 {
 
-                    string name;
-                    string surname;
-                    string country;
-                    string login;
-                    string password;
-                    string email;
-
-                    string phoneNumber;
+                   
                     Console.Write("Enter name:");
                     name = Console.ReadLine();
 
@@ -237,7 +236,7 @@ namespace BettingCompany
                     if (choice == "1")
                     {
                         Human user = new User(name, surname, country, login, password, email, phoneNumber, age);
-                        if (!usersAdmins.ContainsKey(user.Email))
+                        if (!usersAdmins.ContainsKey(email))
                         {
                             usersAdmins.Add(user.Email, user);
                         }
@@ -255,16 +254,17 @@ namespace BettingCompany
 
                         }
                     }
-                    else
+                    else if(choice=="0")
                     {
                         Console.Write("To register a new admin you have to enter codeword:");
-                        if (Console.ReadLine() == Admin.adminCode)
+                        string adminCode = String.Empty;
+                        adminCode = Console.ReadLine();
+                        if ( adminCode == Admin.adminCode)
                         {
                             Human admin = new Admin(name, surname, country, login, password, email, phoneNumber, age);
-                            Console.WriteLine(admin.Email);
-                            if (!usersAdmins.ContainsKey(admin.Email))
+                            if (!usersAdmins.ContainsKey(email))
                             {
-                                usersAdmins.Add(admin.Email, admin);
+                                usersAdmins.Add(email, admin);
                             }
                             else
                             {
@@ -276,7 +276,7 @@ namespace BettingCompany
                                     email = Console.ReadLine();
                                 } while (usersAdmins.ContainsKey(email));
                                 admin.Email = email;
-                                usersAdmins.Add(admin.Email, admin);
+                                usersAdmins.Add(email, admin);
 
                             }
                         }
@@ -297,6 +297,8 @@ namespace BettingCompany
         }
         public void WriteusersAdminsToDataBase()
         {
+            string adm = "admin";
+            string usr = "user";
             BinaryWriter binaryWriter;
             try
             {
@@ -313,29 +315,29 @@ namespace BettingCompany
                 {
                     if (human.Value is User)
                     {
-                        binaryWriter.Write("user");
+                        binaryWriter.Write(usr);
                         binaryWriter.Write(human.Key);
-                        binaryWriter.Write(human.Value.Age);
-                        binaryWriter.Write(human.Value.Name);
-                        binaryWriter.Write(human.Value.Surname);
-                        binaryWriter.Write(human.Value.Login);
-                        binaryWriter.Write(human.Value.Password);
-                        binaryWriter.Write(human.Value.Country);
-                        binaryWriter.Write(human.Value.PhoneNumber);
+                        binaryWriter.Write((human.Value as User).Age);
+                        binaryWriter.Write((human.Value as User).Name);
+                        binaryWriter.Write((human.Value as User).Surname);
+                        binaryWriter.Write((human.Value as User).Login);
+                        binaryWriter.Write((human.Value as User).Password);
+                        binaryWriter.Write((human.Value as User).Country);
+                        binaryWriter.Write((human.Value as User).PhoneNumber);
                         binaryWriter.Write((human.Value as User).Balance);
                         binaryWriter.Write((human.Value as User).Valute);
                     }
                     else
                     {
-                        binaryWriter.Write("admin");
+                        binaryWriter.Write(adm);
                         binaryWriter.Write(human.Key);
-                        binaryWriter.Write(human.Value.Age);
-                        binaryWriter.Write(human.Value.Name);
-                        binaryWriter.Write(human.Value.Surname);
-                        binaryWriter.Write(human.Value.Login);
-                        binaryWriter.Write(human.Value.Password);
-                        binaryWriter.Write(human.Value.Country);
-                        binaryWriter.Write(human.Value.PhoneNumber);
+                        binaryWriter.Write((human.Value as Admin).Age);
+                        binaryWriter.Write((human.Value as Admin).Name);
+                        binaryWriter.Write((human.Value as Admin).Surname);
+                        binaryWriter.Write((human.Value as Admin).Login);
+                        binaryWriter.Write((human.Value as Admin).Password);
+                        binaryWriter.Write((human.Value as Admin).Country);
+                        binaryWriter.Write((human.Value as Admin).PhoneNumber);
                     }
 
                 }
@@ -368,8 +370,6 @@ namespace BettingCompany
                         string password = b.ReadString();
                         string country = b.ReadString();
                         string phoneNumber = b.ReadString();
-                        int s;
-                        s = Int32.Parse(Console.ReadLine());
                         if (userAdminChoice == "user")
                         {
                             decimal balance = b.ReadDecimal();
@@ -414,12 +414,12 @@ namespace BettingCompany
                     {
                         if(userAdmin.Value is User)
                         {
-                            mainAccountUser = userAdmin.Value;
+                            loggedAccount = userAdmin.Value;
                         }
                     }
                     else
                     {
-                        mainAcoountAdmin = userAdmin.Value;
+                        loggedAccount = userAdmin.Value;
                     }
                 }
             }

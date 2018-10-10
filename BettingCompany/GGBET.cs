@@ -10,9 +10,6 @@ namespace BettingCompany
     {
         
        
-        static public void Login()
-        {
-
-        }
+        
     }
 }

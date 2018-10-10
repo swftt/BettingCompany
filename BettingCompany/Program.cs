@@ -30,10 +30,12 @@ namespace BettingCompany
             //casinoBets.WriteToFile();
             //casinoBets.ReadFromFile();
             casinoBets.RegisterUser();
+            casinoBets.RegisterUser();
             casinoBets.WriteusersAdminsToDataBase();
             casinoBets.ReadusersAdminsFromDataBase();
-            
-            
+            casinoBets.LoginToAccount();
+
+
 
         }
     }

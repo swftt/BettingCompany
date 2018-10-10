@@ -13,7 +13,7 @@ namespace BettingCompany
         {
 
         }
-        public Admin(string name, string surname, string country, string login, string password, string email, string phoneNumber, int age):base()
+        public Admin(string name, string surname, string country, string login, string password, string email, string phoneNumber, int age):base(name, surname, country, age, password, login, email, phoneNumber)
         {
 
         }
