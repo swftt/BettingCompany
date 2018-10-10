@@ -43,8 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin.cs" />
+    <Compile Include="UserRegisterException.cs" />
+    <Compile Include="BettingsEvents.cs" />
+    <Compile Include="CasinoBets.cs" />
+    <Compile Include="DataRandomiser.cs" />
+    <Compile Include="FirstDepositeException.cs" />
+    <Compile Include="GGBET.cs" />
+    <Compile Include="Human.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="User.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
