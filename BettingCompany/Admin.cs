@@ -17,5 +17,9 @@ namespace BettingCompany
         {
 
         }
+        public override string ToString()
+        {
+            return base.ToString() + "a";
+        }
     }
 }

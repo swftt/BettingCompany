@@ -10,81 +10,99 @@ using System.Xml.Serialization;
 namespace BettingCompany
 {
 
-    class CasinoBets
+     class CasinoBets
     {
 
         private Dictionary<TypeOfEvent, List<BettingsEvents>> bettingEvents = new Dictionary<TypeOfEvent, List<BettingsEvents>>();
-        private Dictionary<string, Human> usersAdmins = new Dictionary<string, Human>();
-        private Human loggedAccount;
+        public VisitorManage manage { get; set; }
+        public DateTime currentTime = DateTime.Now;
+        public CasinoBets(VisitorManage manage)
+        {
+            this.manage = manage;
+        }
+
+        public CasinoBets()
+        {
+
+        }
         public void AddBettingEvents()
         {
-            char choice = 'y';
-            while (choice == 'y' || choice == 'Y')
+            if (manage.LoggedAdmin != null)
             {
-                BettingsEvents bettings = new BettingsEvents();
-                Console.WriteLine("Chose a discipline of the bet:");
-                Console.Write(" 1.eSports\n 2.Football\n 3.Basketball\n 4.Cricket\n 5.Valleyball\n 6.MMA\n 7.Box\n 8.Marathon\n 9.Tennis\n 10.Hokey\n");
-                switch (Int32.Parse(Console.ReadLine()))
+                char choice = 'y';
+                while (choice == 'y' || choice == 'Y')
                 {
-                    case 1:
-                        bettings.BettingEvents = TypeOfEvent.eSports;
-                        break;
-                    case 2:
-                        bettings.BettingEvents = TypeOfEvent.Football;
-                        break;
-                    case 3:
-                        bettings.BettingEvents = TypeOfEvent.Basketball;
-                        break;
-                    case 4:
-                        bettings.BettingEvents = TypeOfEvent.Cricket;
-                        break;
-                    case 5:
-                        bettings.BettingEvents = TypeOfEvent.Valleyball;
-                        break;
-                    case 6:
-                        bettings.BettingEvents = TypeOfEvent.MMA;
-                        break;
-                    case 7:
-                        bettings.BettingEvents = TypeOfEvent.Box;
-                        break;
-                    case 8:
-                        bettings.BettingEvents = TypeOfEvent.Marathon;
-                        break;
-                    case 9:
-                        bettings.BettingEvents = TypeOfEvent.Tennis;
-                        break;
-                    case 10:
-                        bettings.BettingEvents = TypeOfEvent.Hokey;
-                        break;
-                }
-                Console.Write("Team one name:");
-                bettings.TeamOne = Console.ReadLine();
-                Console.Write("Team two name:");
-                bettings.TeamTwo = Console.ReadLine();
-                bettings.EventStart = DateTime.Now;
-                Console.Write("Enter length of event in minutes:");
-                bettings.EventEnd = bettings.EventStart.AddMinutes(Int32.Parse(Console.ReadLine()));
-
-                if (bettingEvents.ContainsKey(bettings.BettingEvents))
-                {
-                    foreach (var item in bettingEvents)
+                    BettingsEvents bettings = new BettingsEvents();
+                    Console.WriteLine("Chose a discipline of the bet:");
+                    Console.Write(" 1.eSports\n 2.Football\n 3.Basketball\n 4.Cricket\n 5.Valleyball\n 6.MMA\n 7.Box\n 8.Marathon\n 9.Tennis\n 10.Hokey\n");
+                    switch (Int32.Parse(Console.ReadLine()))
                     {
-                        if (item.Key == bettings.BettingEvents)
-                        {
-                            item.Value.Add(bettings);
-                        }
-                        break;
+                        case 1:
+                            bettings.BettingEvents = TypeOfEvent.eSports;
+                            break;
+                        case 2:
+                            bettings.BettingEvents = TypeOfEvent.Football;
+                            break;
+                        case 3:
+                            bettings.BettingEvents = TypeOfEvent.Basketball;
+                            break;
+                        case 4:
+                            bettings.BettingEvents = TypeOfEvent.Cricket;
+                            break;
+                        case 5:
+                            bettings.BettingEvents = TypeOfEvent.Valleyball;
+                            break;
+                        case 6:
+                            bettings.BettingEvents = TypeOfEvent.MMA;
+                            break;
+                        case 7:
+                            bettings.BettingEvents = TypeOfEvent.Box;
+                            break;
+                        case 8:
+                            bettings.BettingEvents = TypeOfEvent.Marathon;
+                            break;
+                        case 9:
+                            bettings.BettingEvents = TypeOfEvent.Tennis;
+                            break;
+                        case 10:
+                            bettings.BettingEvents = TypeOfEvent.Hokey;
+                            break;
                     }
+                    Console.Write("Team one name:");
+                    bettings.TeamOne = Console.ReadLine();
+                    Console.Write("Team two name:");
+                    bettings.TeamTwo = Console.ReadLine();
+                    bettings.EventStart = DateTime.Now;
+                    Console.Write("Enter length of event in minutes:");
+                    bettings.EventEnd = bettings.EventStart.AddSeconds(Int32.Parse(Console.ReadLine()));
+                    bettings.SetTeamOneCoefitient(0);
+                    bettings.SetTeamTwoCoefitient(0);
+                    if (bettingEvents.ContainsKey(bettings.BettingEvents))
+                    {
+                        foreach (var item in bettingEvents)
+                        {
+                            if (item.Key == bettings.BettingEvents)
+                            {
+                                item.Value.Add(bettings);
+                            }
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        List<BettingsEvents> betEvents = new List<BettingsEvents>();
+                        betEvents.Add(bettings);
+                        bettingEvents.Add(bettings.BettingEvents, betEvents);
+                    }
+                    Console.WriteLine("Want to continue adding events? (y/n)");
+                    choice = Char.Parse(Console.ReadLine());
                 }
-                else
-                {
-                    List<BettingsEvents> betEvents = new List<BettingsEvents>();
-                    betEvents.Add(bettings);
-                    bettingEvents.Add(bettings.BettingEvents, betEvents);
-                }
-                Console.WriteLine("Want to continue adding events? (y/n)");
-                choice = Char.Parse(Console.ReadLine());
             }
+            else
+            {
+                Console.WriteLine("You`re not allowed to manage bets");
+            }
+
         }
         public void WriteEventsToFile()
         {
@@ -109,8 +127,10 @@ namespace BettingCompany
                     {
                         binaryWriter.Write(betEvent.TeamOne);
                         binaryWriter.Write(betEvent.TeamOneCoefitient);
+                        binaryWriter.Write(betEvent.TeamOneMonetPlaced);
                         binaryWriter.Write(betEvent.TeamTwo);
                         binaryWriter.Write(betEvent.TeamTwoCoefitient);
+                        binaryWriter.Write(betEvent.TeamTwoMoneyPlaced);
                         binaryWriter.Write(betEvent.EventStart.ToString());
                         binaryWriter.Write(betEvent.EventEnd.ToString());
                     }
@@ -137,7 +157,7 @@ namespace BettingCompany
                     {
                         List<BettingsEvents> bettings = new List<BettingsEvents>();
                         pos += sizeof(int);
-                        TypeOfEvent typeOfEvent = (TypeOfEvent)b.ReadInt32(); //(TypeOfEvent)Enum.Parse(typeof(TypeOfEvent), b.ReadString());
+                        TypeOfEvent typeOfEvent = (TypeOfEvent)b.ReadInt32(); 
                         int eventsCount = b.ReadInt32();
                         pos += sizeof(int);
                         for (int i = 0; i < eventsCount; i++)
@@ -145,8 +165,10 @@ namespace BettingCompany
 
                             string teamOne = b.ReadString();
                             double teamOneCoefitient = b.ReadDouble();
+                            decimal teamOneMoneyPlaced = b.ReadDecimal();
                             string teamTwo = b.ReadString();
                             double teamTwoCoefitient = b.ReadDouble();
+                            decimal teamTwoMoneyPlaced=b.ReadDecimal();
                             string startStr = b.ReadString();
                             string endStr = b.ReadString();
 
@@ -159,12 +181,14 @@ namespace BettingCompany
                                 TeamTwo = teamTwo,
                                 TeamOneCoefitient = teamOneCoefitient,
                                 TeamTwoCoefitient = teamTwoCoefitient,
+                                TeamOneMonetPlaced = teamOneMoneyPlaced,
+                                TeamTwoMoneyPlaced=teamTwoMoneyPlaced,
                                 EventStart = eventStart,
                                 EventEnd = eventEnd,
                                 BettingEvents = typeOfEvent
                             };
                             bettings.Add(bet);
-                            pos += teamOne.Length * 2 + sizeof(double) + teamTwo.Length * 2 + sizeof(double) + startStr.Length * 2 + endStr.Length * 2;
+                            pos += teamOne.Length * 2 + sizeof(double)+sizeof(decimal) + teamTwo.Length * 2 + sizeof(double)+sizeof(decimal) + startStr.Length * 2 + endStr.Length * 2;
 
 
                         }
@@ -180,328 +204,227 @@ namespace BettingCompany
             }
 
         }
-        public void RegisterUser()
+
+
+        public void PlaceBet()
         {
-            int age;
-            string name;
-            string surname;
-            string country;
-            string login;
-            string password;
-            string email;
-            string phoneNumber;
-            Console.WriteLine();
-            Console.Write("Enter age(You have to be over 18 years to register on site):");
-            age = Int32.Parse(Console.ReadLine());
-            try
+            if (manage.LoggedUser != null)
             {
-
-                if (age < 18)
+                int choice;
+                Console.WriteLine("Chose a discipline of the bet:");
+                Console.Write(" 1.eSports\n 2.Football\n 3.Basketball\n 4.Cricket\n 5.Valleyball\n 6.MMA\n 7.Box\n 8.Marathon\n 9.Tennis\n 10.Hokey\n");
+                switch (Int32.Parse(Console.ReadLine()))
                 {
-                    UserRegistrationException ex = new UserRegistrationException(string.Format($"Persons under 18 years cant register"));
-                    throw ex;
+                    case 1:
+                        choice = (int)TypeOfEvent.eSports;
+                        break;
+                    case 2:
+                        choice = (int)TypeOfEvent.Football;
+                        break;
+                    case 3:
+                        choice = (int)TypeOfEvent.Basketball;
+                        break;
+                    case 4:
+                        choice = (int)TypeOfEvent.Cricket;
+                        break;
+                    case 5:
+                        choice = (int)TypeOfEvent.Valleyball;
+                        break;
+                    case 6:
+                        choice = (int)TypeOfEvent.MMA;
+                        break;
+                    case 7:
+                        choice = (int)TypeOfEvent.Box;
+                        break;
+                    case 8:
+                        choice = (int)TypeOfEvent.Marathon;
+                        break;
+                    case 9:
+                        choice = (int)TypeOfEvent.Tennis;
+                        break;
+                    case 10:
+                        choice = (int)TypeOfEvent.Hokey;
+                        break;
+                    default:
+                        choice = 0;
+                        break;
                 }
-                else
+                Console.Write("Team one name:");
+                string TeamOne = Console.ReadLine();
+                Console.Write("Team two name:");
+                string TeamTwo = Console.ReadLine();
+                List<BettingsEvents> tmpEvents = new List<BettingsEvents>();
+                foreach (var item in bettingEvents)
                 {
-
-                   
-                    Console.Write("Enter name:");
-                    name = Console.ReadLine();
-
-                    Console.WriteLine();
-                    Console.Write("Enter surname:");
-                    surname = Console.ReadLine();
-
-                    Console.WriteLine();
-                    Console.Write("Enter country:");
-                    country = Console.ReadLine();
-
-                    Console.WriteLine();
-                    Console.Write("Enter login:");
-                    login = Console.ReadLine();
-
-                    Console.WriteLine();
-                    Console.Write("Enter password:");
-                    password = Console.ReadLine();
-
-
-                    Console.WriteLine();
-                    Console.Write("Enter phone number:");
-                    phoneNumber = Console.ReadLine();
-                    Console.WriteLine();
-                    Console.WriteLine("Enter email:");
-                    email = Console.ReadLine();
-                    Console.Write("Register user or admin?(1/0)");
-                    string choice = Console.ReadLine();
-                    if (choice == "1")
+                    if ((int)item.Key == choice)
                     {
-                        Human user = new User(name, surname, country, login, password, email, phoneNumber, age);
-                        if (!usersAdmins.ContainsKey(email))
+                        foreach (var betEvent in item.Value)
                         {
-                            usersAdmins.Add(user.Email, user);
-                        }
-                        else
-                        {
-
-                            do
+                            if (betEvent.TeamOne == TeamOne && betEvent.TeamTwo == TeamTwo)
                             {
-                                Console.WriteLine("Cant register user with same email is already exists");
-                                Console.Write("Enter your email:");
-                                email = Console.ReadLine();
-                            } while (usersAdmins.ContainsKey(email));
-                            user.Email = email;
-                            usersAdmins.Add(user.Email, user);
-
-                        }
-                    }
-                    else if(choice=="0")
-                    {
-                        Console.Write("To register a new admin you have to enter codeword:");
-                        string adminCode = String.Empty;
-                        adminCode = Console.ReadLine();
-                        if ( adminCode == Admin.adminCode)
-                        {
-                            Human admin = new Admin(name, surname, country, login, password, email, phoneNumber, age);
-                            if (!usersAdmins.ContainsKey(email))
-                            {
-                                usersAdmins.Add(email, admin);
-                            }
-                            else
-                            {
-
-                                do
+                                string bettingChoice = String.Empty;
+                                Console.WriteLine("Enter amount of money to bet: ");
+                                int betAmount = Int32.Parse(Console.ReadLine());
+                                if(manage.LoggedUser.Balance>=betAmount && betAmount>0)
                                 {
-                                    Console.WriteLine("Cant register user with same email is already exists");
-                                    Console.Write("Enter your email:");
-                                    email = Console.ReadLine();
-                                } while (usersAdmins.ContainsKey(email));
-                                admin.Email = email;
-                                usersAdmins.Add(email, admin);
+
+                                   
+                                    do
+                                    {
+                                       Console.WriteLine("Select team to bet:");
+                                       bettingChoice = Console.ReadLine();
+                                    } while (bettingChoice!=betEvent.TeamOne || bettingChoice != betEvent.TeamTwo);
+                                    if(bettingChoice==betEvent.TeamOne)
+                                    {
+                                        betEvent.SetTeamOneCoefitient(betAmount);
+                                        manage.LoggedUser.BetsPlaced.Add(betEvent.EventStart, betEvent);
+                                        foreach (var userBets in manage.LoggedUser.BetsPlaced)
+                                        {
+                                            if (userBets.Key == betEvent.EventStart)
+                                            {
+                                                userBets.Value.TeamOne +=betAmount.ToString()+"<";
+                                            }
+                                        }
+                                       
+                                    }
+                                    else
+                                    {
+                                        betEvent.SetTeamTwoCoefitient(betAmount);
+                                        manage.LoggedUser.BetsPlaced.Add(betEvent.EventStart, betEvent);
+                                        foreach (var userBets in manage.LoggedUser.BetsPlaced)
+                                        {
+                                            if (userBets.Key == betEvent.EventStart)
+                                            {
+                                                userBets.Value.TeamTwo += betAmount.ToString() + "<";
+                                            }
+                                        }
+                                    }
+                                }
 
                             }
                         }
-                        else
+                    }
+                }
+                Console.Write("Enter how much money to bet:");
+            }
+            else
+            {
+                Console.WriteLine("You have first to sign in to place bets");
+            }
+        }
+        public void PrintBetEvents()
+        {
+            foreach (var discipline in bettingEvents)
+            {
+                Console.WriteLine(discipline.Key);
+                foreach (var item in discipline.Value)
+                {
+                    Console.WriteLine(item.ToString());
+                }
+            }
+        }
+
+        static Random randomWinner = new Random();
+        public void PrintStatisticsOfBets()
+        {
+            currentTime = DateTime.Now;
+            foreach (var bet in manage.LoggedUser.BetsPlaced)
+            {
+                if (currentTime > bet.Value.EventEnd)
+                {
+                    int winnerCounter = 0;
+                    int randWinner = randomWinner.Next(0, 1000);
+                    double teamOneChance = (double)(bet.Value.TeamOneMonetPlaced / (bet.Value.TeamOneMonetPlaced + bet.Value.TeamTwoMoneyPlaced));
+                    Math.Round(teamOneChance, 2);
+                    teamOneChance *= 10;
+                    if (randWinner <= teamOneChance && bet.Value.TeamOne.Last() == '<')
+                    {
+                        int counter = 1;
+                        int moneyPlaced = 0;
+                        int numHelper;
+                        int i = bet.Value.TeamOne.Length-1;
+                        while(bet.Value.TeamOne[i]!=' ')
                         {
-                            Console.WriteLine("You entered invalid admin code,please register later or contact with other admins");
+                            if(bet.Value.TeamOne[i]!='<')
+                            {
+                                numHelper = Int32.Parse(bet.Value.TeamOne[i].ToString());
+                                moneyPlaced += numHelper * counter;
+                                counter *= 10;
+                            }
                         }
-
-
+                        manage.LoggedUser.Balance += (decimal)(moneyPlaced * bet.Value.TeamOneCoefitient);
+                        Win?.Invoke(this, new StatusEventArgs("You have won!"));
+                        Console.WriteLine($"Current balance:{manage.LoggedUser.Balance}");
+                        winnerCounter++;
                     }
-                }
-            }
-            catch (UserRegistrationException e)
-            {
-                Console.WriteLine(e.Message);
-            }
-
-        }
-        public void WriteusersAdminsToDataBase()
-        {
-            string adm = "admin";
-            string usr = "user";
-            BinaryWriter binaryWriter;
-            try
-            {
-                binaryWriter = new BinaryWriter(new FileStream("UserData.txt", FileMode.Create));
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message + " Cant create/open file");
-                return;
-            }
-            try
-            {
-                foreach (var human in usersAdmins)
-                {
-                    if (human.Value is User)
+                    else if(randWinner > teamOneChance && bet.Value.TeamTwo.Last() == '<')
                     {
-                        binaryWriter.Write(usr);
-                        binaryWriter.Write(human.Key);
-                        binaryWriter.Write((human.Value as User).Age);
-                        binaryWriter.Write((human.Value as User).Name);
-                        binaryWriter.Write((human.Value as User).Surname);
-                        binaryWriter.Write((human.Value as User).Login);
-                        binaryWriter.Write((human.Value as User).Password);
-                        binaryWriter.Write((human.Value as User).Country);
-                        binaryWriter.Write((human.Value as User).PhoneNumber);
-                        binaryWriter.Write((human.Value as User).Balance);
-                        binaryWriter.Write((human.Value as User).Valute);
-                    }
-                    else
-                    {
-                        binaryWriter.Write(adm);
-                        binaryWriter.Write(human.Key);
-                        binaryWriter.Write((human.Value as Admin).Age);
-                        binaryWriter.Write((human.Value as Admin).Name);
-                        binaryWriter.Write((human.Value as Admin).Surname);
-                        binaryWriter.Write((human.Value as Admin).Login);
-                        binaryWriter.Write((human.Value as Admin).Password);
-                        binaryWriter.Write((human.Value as Admin).Country);
-                        binaryWriter.Write((human.Value as Admin).PhoneNumber);
-                    }
-
-                }
-                usersAdmins.Clear();
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message + " Cant write to the file");
-                return;
-            }
-            binaryWriter.Close();
-        }
-        public void ReadusersAdminsFromDataBase()
-        {
-            try
-            {
-                using (BinaryReader b = new BinaryReader(
-                File.Open("UserData.txt", FileMode.Open)))
-                {
-                    int pos = 0;
-                    int length = (int)b.BaseStream.Length;
-                    while (pos < length)
-                    {
-                        string userAdminChoice = b.ReadString();
-                        string email = b.ReadString();
-                        int age = b.ReadInt32();
-                        string name = b.ReadString();
-                        string surname = b.ReadString();
-                        string login = b.ReadString();
-                        string password = b.ReadString();
-                        string country = b.ReadString();
-                        string phoneNumber = b.ReadString();
-                        if (userAdminChoice == "user")
+                        int counter = 1;
+                        int moneyPlaced = 0;
+                        int numHelper;
+                        int i = bet.Value.TeamTwo.Length - 1;
+                        while (bet.Value.TeamOne[i] != ' ')
                         {
-                            decimal balance = b.ReadDecimal();
-                            string valute = b.ReadString();
-                            Human user = new User(name, surname, country, login, password, email, phoneNumber, age, balance, valute);
-                            usersAdmins.Add(user.Email, user);
-                            pos += userAdminChoice.Length * 2 + sizeof(int) + email.Length * 2 + name.Length * 2 + surname.Length * 2 + login.Length * 2 + password.Length * 2 + country.Length * 2 + phoneNumber.Length * 2 + sizeof(decimal) + valute.Length * 2;
+                            if (bet.Value.TeamOne[i] != '<')
+                            {
+                                numHelper = Int32.Parse(bet.Value.TeamTwo[i].ToString());
+                                moneyPlaced += numHelper * counter;
+                                counter *= 10;
+                            }
+                        }
+                        manage.LoggedUser.Balance += (decimal)(moneyPlaced * bet.Value.TeamTwoCoefitient);
+                        Win?.Invoke(this, new StatusEventArgs("You have won!"));
+                        Console.WriteLine($" Current balance:{manage.LoggedUser.Balance}");
+                        winnerCounter++;
+                    }
+                    else if(winnerCounter==0)
+                    {
+                        if(bet.Value.TeamOne.Last()=='<')
+                        {
+                            int counter = 1;
+                            int moneyPlaced = 0;
+                            int numHelper;
+                            int i = bet.Value.TeamOne.Length - 1;
+                            while (bet.Value.TeamOne[i] != ' ')
+                            {
+                                if (bet.Value.TeamOne[i] != '<')
+                                {
+                                    numHelper = Int32.Parse(bet.Value.TeamOne[i].ToString());
+                                    moneyPlaced += numHelper * counter;
+                                    counter *= 10;
+                                }
+                            }
+                            manage.LoggedUser.Balance += (decimal)(moneyPlaced * bet.Value.TeamOneCoefitient);
                         }
                         else
                         {
-                            Human admin = new User(name, surname, country, login, password, email, phoneNumber, age);
-                            usersAdmins.Add(admin.Email, admin);
-                            pos += userAdminChoice.Length * 2 + sizeof(int) + email.Length * 2 + name.Length * 2 + surname.Length * 2 + login.Length * 2 + password.Length * 2 + country.Length * 2 + phoneNumber.Length * 2;
+                            int counter = 1;
+                            int moneyPlaced = 0;
+                            int numHelper;
+                            int i = bet.Value.TeamTwo.Length - 1;
+                            while (bet.Value.TeamOne[i] != ' ')
+                            {
+                                if (bet.Value.TeamOne[i] != '<')
+                                {
+                                    numHelper = Int32.Parse(bet.Value.TeamTwo[i].ToString());
+                                    moneyPlaced += numHelper * counter;
+                                    counter *= 10;
+                                }
+                            }
+                            manage.LoggedUser.Balance += (decimal)(moneyPlaced * bet.Value.TeamTwoCoefitient);
                         }
+                        Lose?.Invoke(this, new StatusEventArgs("You have lost!"));
+                        Console.WriteLine($" Current balance:{manage.LoggedUser.Balance}");
 
-                        { }
                     }
-
-
-
-                }
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message + " Cant open file");
-
-            }
-        }
-        public void LoginToAccount()
-        {
-            string email = String.Empty;
-            string password = String.Empty;
-            Console.Write("Enter your email:");
-            email = Console.ReadLine();
-            if (usersAdmins.ContainsKey(email))
-            {
-                Console.Write("Enter your password:");
-                password = Console.ReadLine();
-                foreach (var userAdmin in usersAdmins)
-                {
-                    if(userAdmin.Value.Password.CompareTo(password)==0)
-                    {
-                        if(userAdmin.Value is User)
-                        {
-                            loggedAccount = userAdmin.Value;
-                        }
-                    }
-                    else
-                    {
-                        loggedAccount = userAdmin.Value;
-                    }
-                }
-            }
-           
-            
-        }
-        //public void AddBalance(decimal additionalBalance,string valute = "GRN")
-        //{
-        //    if (user is User)
-        //    {
-        //        if (valute == "DOL")
-        //        {
-        //            additionalBalance *= 28;
-        //        }
-        //        if (valute == "EUR")
-        //        {
-        //            additionalBalance *= 30;
-        //        }
-        //        try
-        //        {
-        //            if (additionalBalance < 500)
-        //            {
-        //                FirstDepositeException ex = new FirstDepositeException(string.Format($"Too small first deposit,you have to make first deposit more then 500 {(user as User).Valute}"));
-        //                throw ex;
-        //            }
-        //            else
-        //            {
-        //                (user as User).Balance += additionalBalance;
-        //                Console.WriteLine($"Congratulations,you`re successfully made a  deposit for {additionalBalance} {(user as User).Valute} now you balance is  {(user as User).Balance} {(user as User).Valute}!");
-        //            }
-
-
-        //        }
-        //        catch (FirstDepositeException e)
-        //        {
-        //            Console.WriteLine(e.Message);
-        //        }
-        //    }
-        //}
-        public void WithdrawMoney(object user, decimal withdrawAmount, string valute = "GRN")
-        {
-            if (user is User)
-            {
-                if (valute == "DOL")
-                {
-                    withdrawAmount *= 28;
-                }
-                if (valute == "EUR")
-                {
-                    withdrawAmount *= 30;
-                }
-                try
-                {
-                    if ((user as User).Balance == 0)
-                    {
-                        FirstDepositeException ex = new FirstDepositeException(string.Format($"You have no money on your account,you cant do a withdraw!"));
-                        throw ex;
-                    }
-                    else if (((user as User).Balance - withdrawAmount) < 0)
-                    {
-                        FirstDepositeException ex = new FirstDepositeException(string.Format($"The withdraw amount is too big,you cant do a withdraw!"));
-                        throw ex;
-                    }
-                    else
-                    {
-                        (user as User).Balance -= withdrawAmount;
-                        Console.WriteLine($"Congratulations,you`re successfully withdrawal {withdrawAmount} {(user as User).Valute} now you balance is  {(user as User).Balance} {(user as User).Valute}!");
-                    }
-
-
-                }
-                catch (FirstDepositeException e)
-                {
-                    Console.WriteLine(e.Message);
+                    
                 }
             }
         }
 
-
-
-
-
-
+        public delegate void MyUserBets(object sender, StatusEventArgs args);
+        public event MyUserBets Win;
+        public event MyUserBets Lose;
     }
 }
+

@@ -6,16 +6,12 @@ using System.Threading.Tasks;
 
 namespace BettingCompany
 {
-   
-    class Program
+    public  class StatusEventArgs
     {
-        static void Main(string[] args)
+        public readonly string msg;
+        public StatusEventArgs(string message)
         {
-
-            Menu menu = new Menu();
-            menu.StartBC();
-
-
+            msg = message;
         }
     }
 }
